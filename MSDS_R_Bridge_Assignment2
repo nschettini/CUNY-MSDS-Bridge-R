@@ -1,0 +1,54 @@
+library(dplyr)
+
+#bonus
+url <- getURL("https://rawgit.com/nschettini/MSDSBridgeR/master/mtcars.csv")
+mtcarsx <- read.csv(text = url)
+head(mtcarsx)
+
+
+#q1
+summary(mtcarsx)
+cat("The mean of mpg is", mean(mtcarsx$mpg), "\n")
+cat("The mean of hp is", mean(mtcarsx$hp), "\n")
+cat("The median of mpg is", median(mtcarsx$mpg), "\n")
+cat("The median of hp is",median(mtcarsx$hp), "\n")
+
+#q2
+df1 <- subset(mtcarsx, hp > 100 & mpg > 15, c('mpg','hp', 'wt','cyl'))
+df1
+
+#q3
+df2 <- rename(df1, horse_power = hp, miles_per_gallon = mpg, weight = wt, cylinders = cyl)
+df2
+
+#q4
+summary(df2)
+cat("The mean of mpg is", mean(df2$miles_per_gallon), "\n")
+cat("The mean of hp is", mean(df2$horse_power), "\n")
+cat("The median of mpg is", median(df2$miles_per_gallon), "\n")
+cat("The median of hp is",median(df2$horse_power), "\n")
+
+MPG_compared <- c('Original Mean','New Mean', 'Original median','New Median')
+mpg <- c(mean(mtcars$mpg), mean(df2$miles_per_gallon), median(mtcars$mpg), median(df2$miles_per_gallon))
+table_mpg <- data.frame(MPG_compared, mpg)
+table_mpg
+
+HP_compared <- c('Original Mean','New Mean', 'Original median','New Median')
+hp <- c(mean(mtcars$hp), mean(df2$horse_power), median(mtcars$hp), median(df2$horse_power))
+table_hp <- data.frame(HP_compared, hp)
+table_hp
+
+#q5
+
+i <- 1
+for (row in df2$cylinders){
+  if (row == 4){
+    df2$cylinders[i] <- "four Cylinders"
+  }else if (row == 6){
+    df2$cylinders[i] <- "six cylinders"
+  }else if (row == 8){
+    df2$cylinders[i] <- "eight cylinders"
+  }
+  i <- i + 1
+}
+df2
