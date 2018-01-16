@@ -1,0 +1,141 @@
+---
+title: "CUNY MSDS R Bridge Final Assignment"
+author: "Nicholas Schettini"
+date: "January 15, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##### I choose to look salaries for college professors using the dataset salaries.  I've always wanted to work at a college, so I thought the data might be useful for me to see what type of salaries professors could make depending on their rank.  Also I thought it might be interesting to see if there was a salary gap for gender within this college.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(RCurl)
+library(tidyverse)
+```
+
+```{r}
+url <- getURL("https://rawgit.com/nschettini/CUNY-MSDS-Bridge-R/master/Salaries.csv")
+salaries <- read.csv(text = url)
+head(salaries)
+```
+\ 
+\ 
+
+#### Q1. Data Exploration: This should include summary statistics, means, medians, quartiles, or any other relevant information about the data set. Please include some conclusions in the R Markdown text.
+
+
+```{r}
+summary(salaries)
+```
+
+```{r}
+
+cat("The mean of all salaries is", mean(salaries$salary))
+cat("The median of all salaries is", median(salaries$salary))
+```
+\ 
+
+Median Salary between gender and rank
+```{r}
+aggregate(salary ~ (sex + rank), salaries, median)
+```
+\ 
+
+Median Salary based on gender.
+```{r}
+aggregate(salary ~ sex , salaries, median)
+```
+\ 
+
+```{r}
+aggregate(salary ~  rank, salaries, median)
+```
+According to the data above, Professors have the highest salary, followed by Associate Professors, then Assistance Professors.  This data also shows that Males make more than Females.
+\ 
+\ 
+
+
+#### Q2. Data Wrangling.  Please perform some basic transformations.  
+```{r}
+rename1 <- rename(salaries, gender = sex, title = rank, total_salary = salary, years.since.phd = yrs.since.phd, years.serivce = yrs.service)
+
+head(rename1)
+```
+\ 
+
+```{r}
+total_males <- subset(salaries, salaries$sex == "Male")
+count(total_males)
+
+total_females <- subset(salaries, salaries$sex == "Female")
+count(total_females)
+```
+\ 
+
+#### Q3. Graphics
+It makes sense to see the difference in males vs. females in this dataset for this college:
+```{r}
+ggplot(salaries, aes(x= sex)) + geom_bar(aes(fill=rank)) + 
+  ggtitle("# of Female vs. Male Professors, by rank") +
+  xlab("Female vs. Male") +
+  ylab("Count")
+```
+\ 
+
+Looking at the above graph, total # of males out number total # of females
+
+```{r}
+hist(salaries$salary, main =  "Histogram of Salaries for Professors"
+     ,ylab = "# of Salaries"
+     ,xlab = "Salaries"
+     ,col = "lightblue")
+abline(v=median(salaries$salary), col="red")
+```
+
+This histogram shows the distribution of salaries over our dataset, along with the median highlighted in red.
+\ 
+
+```{r}
+ggplot(salaries, aes(y = salary, x = rank)) + geom_boxplot(aes(fill=factor(rank))) +
+  theme_dark() +
+  xlab("Rank") +
+  ylab("Salary") +
+  ggtitle("Median Salary for Different Ranks")
+
+```
+
+This boxplot shows the three different ranks of our data.  This shows visually that Professors make the most, followed by Associate Professors, and lastly Assistant Professors.
+
+
+```{r}
+ ggplot(salaries, aes(x= yrs.service, y= salary)) + 
+   geom_point(aes(color = rank, shape = sex), size = 4) +
+   theme_dark() +
+  xlab("Years of Service") +
+  ylab("Salary") +
+  ggtitle("Years of Service vs. Salary") +
+  geom_smooth(method=lm)
+
+``` 
+
+```{r}
+ ggplot(salaries, aes(x= yrs.since.phd, y= salary)) + 
+   geom_point(aes(color = rank), size = 4) +
+   theme_dark()+
+  xlab("Years since PHD was obtained") +
+  ylab("Salary") +
+  ggtitle("Years since PHD Obtained vs. Salary") +
+  geom_smooth(method=lm)
+```
+\ 
+\ 
+
+
+
+####**Conclusions:**
+#####According to the data, it seems that the higher rank you are within the college, the higher average salary you have - professors make more than associate professors, and associate professors make more than assistant professors.  
+
+#####The median salary for all ranks at this college is about 107k - which is a fairly decent salary. It seems that males make slightly more than females at this college (108k vs. 103k median salary M. vs. F.).  This college however doesn't employee many female professors (358 vs. 39).
